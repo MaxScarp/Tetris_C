@@ -70,3 +70,6 @@ void DeleteLines(Stage* stage);
 void MoveTetrominoDown(Tetromino* tetromino, Stage* stage);
 void DrawStage(const Stage stage);
 void DrawTetromino(const Tetromino tetromino, const Stage stage);
+void Input(Tetromino* tetromino, const Stage stage);
+void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax);
+void Draw(const Tetromino tetromino, const Stage stage);

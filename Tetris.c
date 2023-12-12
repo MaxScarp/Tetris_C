@@ -13,19 +13,9 @@ int main(int argc, char** argv, char** envs)
 
     while(!WindowShouldClose())
     {
-        ManageRotation(&tetromino, stage);
-        ManageHorizontalMovement(&tetromino, stage);
-
-        if(ManageTimer(&tetrominoMoveTimer, tetrominoMoveTimerMax))
-        {
-            MoveTetrominoDown(&tetromino, &stage);
-        }
-
-        BeginDrawing();
-        ClearBackground(BLACK);
-        DrawStage(stage);
-        DrawTetromino(tetromino, stage);
-        EndDrawing();
+        Input(&tetromino, stage);
+        Update(&tetromino, &stage, &tetrominoMoveTimer, tetrominoMoveTimerMax);
+        Draw(tetromino, stage);
     }
 
     return 0;
@@ -294,6 +284,35 @@ void DrawTetromino(const Tetromino tetromino, const Stage stage)
             }
         }
     }
+
+    return;
+}
+
+void Input(Tetromino* tetromino, const Stage stage)
+{
+    ManageRotation(tetromino, stage);
+    ManageHorizontalMovement(tetromino, stage);
+
+    return;
+}
+
+void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax)
+{
+    if(ManageTimer(tetrominoMoveTimer, tetrominoMoveTimerMax))
+    {
+        MoveTetrominoDown(tetromino, stage);
+    }
+
+    return;
+}
+
+void Draw(const Tetromino tetromino, const Stage stage)
+{
+    BeginDrawing();
+    ClearBackground(BLACK);
+    DrawStage(stage);
+    DrawTetromino(tetromino, stage);
+    EndDrawing();
 
     return;
 }
