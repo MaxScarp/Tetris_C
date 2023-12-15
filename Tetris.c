@@ -12,15 +12,20 @@ int main(int argc, char** argv, char** envs)
 
     unsigned long long int score = InitScore();
 
+    Music mainTheme;
+
     InitGame(&stage, &tetrominoMoveTimer, &speed);
+    InitAudio(&mainTheme);
     InitTetromino(&tetromino);
 
     while(!WindowShouldClose())
     {
         Input(&tetromino, stage);
-        Update(&tetromino, &stage, &tetrominoMoveTimer, tetrominoMoveTimerMax, &score, &speed);
+        Update(&tetromino, &stage, &tetrominoMoveTimer, tetrominoMoveTimerMax, &score, &speed, &mainTheme);
         Draw(tetromino, stage, score);
     }
+
+    Exit(&mainTheme);
 
     return 0;
 }
@@ -55,7 +60,7 @@ void InitGame(Stage* stage, float* tetrominoMoveTimer, float* speed)
     };
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
-    SetTargetFPS(FPS);
+    SetTargetFPS(FPS);  
 
     time_t unixTime;
     time(&unixTime);
@@ -316,8 +321,9 @@ void Input(Tetromino* tetromino, const Stage stage)
     return;
 }
 
-void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax, unsigned long long int* score, float* speed)
+void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax, unsigned long long int* score, float* speed, Music* mainTheme)
 {
+    UpdateMusicStream(*mainTheme);
     if(ManageTimer(tetrominoMoveTimer, tetrominoMoveTimerMax, speed))
     {
         MoveTetrominoDown(tetromino, stage, score, speed);
@@ -376,5 +382,22 @@ void DrawScore(const unsigned long long int score)
     DrawText(TextFormat("Score: %llu", score), 25, 25, 40, WHITE);
 
     return;
+}
+
+void InitAudio(Music* mainTheme)
+{
+    InitAudioDevice();
+
+    *mainTheme = LoadMusicStream(MAIN_THEME_PATH);
+    mainTheme->looping = true;
+
+    PlayMusicStream(*mainTheme);
+}
+
+void Exit(Music* mainTheme)
+{
+    UnloadMusicStream(*mainTheme);
+    CloseAudioDevice();
+    CloseWindow();
 }
 #pragma endregion

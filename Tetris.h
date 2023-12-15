@@ -16,6 +16,7 @@
 #define SPEED_MULTIPLIER 2.0f
 #define TETROMINO_START_X STAGE_WIDTH * 0.5f
 #define TETROMINO_START_Y 0
+#define MAIN_THEME_PATH "mainTheme.wav"
 
 typedef enum CustomizedColor
 {
@@ -73,8 +74,10 @@ void MoveTetrominoDown(Tetromino* tetromino, Stage* stage, unsigned long long in
 void DrawStage(const Stage stage);
 void DrawTetromino(const Tetromino tetromino, const Stage stage);
 void Input(Tetromino* tetromino, const Stage stage);
-void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax, unsigned long long int* score, float* speed);
+void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax, unsigned long long int* score, float* speed, Music* mainThem);
 void Draw(const Tetromino tetromino, const Stage stage, unsigned long long int score);
 unsigned long long int CalculateScore(const int completedLinesAmount);
 int InitScore(void);
 void DrawScore(const unsigned long long int score);
+void InitAudio(Music* mainTheme);
+void Exit(Music* mainTheme);
