@@ -2,27 +2,31 @@
 
 int main(int argc, char** argv, char** envs)
 {
+    const float tetrominoMoveTimerMax = MOVE_TIMER_MAX;
+
     Stage stage;
     Tetromino tetromino;
 
-    const float tetrominoMoveTimerMax = MOVE_TIMER_MAX;
-    float tetrominoMoveTimer = tetrominoMoveTimerMax;
+    float tetrominoMoveTimer;
+    float speed;
 
-    InitGame(&stage);
+    unsigned long long int score = InitScore();
+
+    InitGame(&stage, &tetrominoMoveTimer, &speed);
     InitTetromino(&tetromino);
 
     while(!WindowShouldClose())
     {
         Input(&tetromino, stage);
-        Update(&tetromino, &stage, &tetrominoMoveTimer, tetrominoMoveTimerMax);
-        Draw(tetromino, stage);
+        Update(&tetromino, &stage, &tetrominoMoveTimer, tetrominoMoveTimerMax, &score, &speed);
+        Draw(tetromino, stage, score);
     }
 
     return 0;
 }
 
 #pragma region "FUNCTIONS"
-void InitGame(Stage* stage)
+void InitGame(Stage* stage, float* tetrominoMoveTimer, float* speed)
 {
     const int blocks[] = 
     {
@@ -61,6 +65,9 @@ void InitGame(Stage* stage)
     stage->centerY = (GetScreenHeight() - STAGE_HEIGHT * TILE_SIZE) * 0.5f;
     memcpy(stage->blocks, blocks, sizeof(blocks));
     stage->color = colors[MY_GREY];
+
+    *tetrominoMoveTimer = MOVE_TIMER_MAX;
+    *speed = INIT_SPEED;
 
     return;
 }
@@ -151,9 +158,9 @@ void ManageHorizontalMovement(Tetromino* tetromino, const Stage stage)
     return;
 }
 
-bool ManageTimer(float* moveTimer, const float moveTimerMax)
+bool ManageTimer(float* moveTimer, const float moveTimerMax, float* speed)
 {
-    *moveTimer -= GetFrameTime();
+    *moveTimer -= GetFrameTime() * (*speed);
     if(*moveTimer <= 0.0f || IsKeyPressed(KEY_DOWN))
     {
         *moveTimer = moveTimerMax;
@@ -191,8 +198,10 @@ void ShiftLineDown(const int startLineY, Stage* stage)
     return;
 }
 
-void DeleteLines(Stage* stage)
+int DeleteLines(Stage* stage)
 {
+    int completedLinesAmount = 0;
+
     for(int y = 0; y < STAGE_HEIGHT - 1; y++)
     {
         bool isLineComplete = true;
@@ -214,13 +223,15 @@ void DeleteLines(Stage* stage)
             memset(stage->blocks + stageOffset, 0, (STAGE_WIDTH - 2) * sizeof(int));
 
             ShiftLineDown(y, stage);
+
+            completedLinesAmount++;
         }
     }
 
-    return;
+    return completedLinesAmount;
 }
 
-void MoveTetrominoDown(Tetromino* tetromino, Stage* stage)
+void MoveTetrominoDown(Tetromino* tetromino, Stage* stage, unsigned long long int* score, float* speed)
 {
     tetromino->positionY += 1;
 
@@ -242,7 +253,16 @@ void MoveTetrominoDown(Tetromino* tetromino, Stage* stage)
             }
         }
 
-        DeleteLines(stage);
+        int completedLinesAmount = DeleteLines(stage);
+        if(completedLinesAmount > 0)
+        {
+            *score += CalculateScore(completedLinesAmount);
+            if(*score % 500 == 0)
+            {
+                TraceLog(LOG_INFO, "TEST");
+                *speed *= SPEED_MULTIPLIER;
+            }
+        }
 
         InitTetromino(tetromino);
     }
@@ -296,23 +316,64 @@ void Input(Tetromino* tetromino, const Stage stage)
     return;
 }
 
-void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax)
+void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax, unsigned long long int* score, float* speed)
 {
-    if(ManageTimer(tetrominoMoveTimer, tetrominoMoveTimerMax))
+    if(ManageTimer(tetrominoMoveTimer, tetrominoMoveTimerMax, speed))
     {
-        MoveTetrominoDown(tetromino, stage);
+        MoveTetrominoDown(tetromino, stage, score, speed);
     }
 
     return;
 }
 
-void Draw(const Tetromino tetromino, const Stage stage)
+void Draw(const Tetromino tetromino, const Stage stage, const unsigned long long int score)
 {
     BeginDrawing();
     ClearBackground(BLACK);
     DrawStage(stage);
     DrawTetromino(tetromino, stage);
+    DrawScore(score);
     EndDrawing();
+
+    return;
+}
+
+unsigned long long int CalculateScore(const int completedLinesAmount)
+{
+    unsigned long long int score = 0;
+
+    switch(completedLinesAmount)
+    {
+        case 1:
+            score += 100;
+            break;
+        case 2:
+            score += 800;
+            break;
+        case 3:
+            score += 2700;
+            break;
+        case 4:
+            score += 6400;
+            break;
+        default:
+            TraceLog(LOG_ERROR, "%d completed lines is not possible, something went wrong!", completedLinesAmount);
+            break;
+    }
+
+
+
+    return score;
+}
+
+int InitScore(void)
+{
+    return 0;
+}
+
+void DrawScore(const unsigned long long int score)
+{
+    DrawText(TextFormat("Score: %llu", score), 25, 25, 40, WHITE);
 
     return;
 }

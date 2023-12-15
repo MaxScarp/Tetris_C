@@ -12,6 +12,8 @@
 #define GAME_TITLE "TETRIS"
 #define FPS 60
 #define MOVE_TIMER_MAX 1.0f
+#define INIT_SPEED 1.0f
+#define SPEED_MULTIPLIER 2.0f
 #define TETROMINO_START_X STAGE_WIDTH * 0.5f
 #define TETROMINO_START_Y 0
 
@@ -58,18 +60,21 @@ typedef struct Stage
     Color color;
 } Stage;
 
-void InitGame(Stage* stage);
+void InitGame(Stage* stage, float* tetrominoMoveTimer, float* speed);
 void InitTetromino(Tetromino* tetromino);
 bool CheckCollision(const Tetromino* tetromino, const Stage stage);
 void CopyTetromino(const Tetromino* source, Tetromino* destination);
 void ManageRotation(Tetromino* tetromino, const Stage stage);
 void ManageHorizontalMovement(Tetromino* tetromino, const Stage stage);
-bool ManageTimer(float* moveTimer, const float moveTimerMax);
+bool ManageTimer(float* moveTimer, const float moveTimerMax, float* speed);
 void ShiftLineDown(const int startLineY, Stage* stage);
-void DeleteLines(Stage* stage);
-void MoveTetrominoDown(Tetromino* tetromino, Stage* stage);
+int DeleteLines(Stage* stage);
+void MoveTetrominoDown(Tetromino* tetromino, Stage* stage, unsigned long long int* score, float* speed);
 void DrawStage(const Stage stage);
 void DrawTetromino(const Tetromino tetromino, const Stage stage);
 void Input(Tetromino* tetromino, const Stage stage);
-void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax);
-void Draw(const Tetromino tetromino, const Stage stage);
+void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax, unsigned long long int* score, float* speed);
+void Draw(const Tetromino tetromino, const Stage stage, unsigned long long int score);
+unsigned long long int CalculateScore(const int completedLinesAmount);
+int InitScore(void);
+void DrawScore(const unsigned long long int score);
