@@ -12,6 +12,8 @@
 #define GAME_TITLE "TETRIS"
 #define FPS 60
 #define MOVE_TIMER_MAX 1.0f
+#define BLINKING_TIMER_MAX 1.5f
+#define BLINKING_TICK_MAX 0.5f
 #define INIT_SPEED 1.0f
 #define SPEED_MULTIPLIER 2.0f
 #define TETROMINO_START_X STAGE_WIDTH * 0.5f
@@ -61,23 +63,26 @@ typedef struct Stage
     Color color;
 } Stage;
 
-void InitGame(Stage* stage, float* tetrominoMoveTimer, float* speed);
+void InitGame(Stage* stage, float* tetrominoMoveTimer, float* speed, bool* blinking, float* blinkingTimer, int* completedLinesAmount, float* blinkingTick);
 void InitTetromino(Tetromino* tetromino);
 bool CheckCollision(const Tetromino* tetromino, const Stage stage);
 void CopyTetromino(const Tetromino* source, Tetromino* destination);
 void ManageRotation(Tetromino* tetromino, const Stage stage);
 void ManageHorizontalMovement(Tetromino* tetromino, const Stage stage);
-bool ManageTimer(float* moveTimer, const float moveTimerMax, float* speed);
+bool ManageTimer(float* moveTimer, float* speed);
 void ShiftLineDown(const int startLineY, Stage* stage);
 int DeleteLines(Stage* stage);
-void MoveTetrominoDown(Tetromino* tetromino, Stage* stage, unsigned long long int* score, float* speed);
+void MoveTetrominoDown(Tetromino* tetromino, Stage* stage, unsigned long long int* score, float* speed, bool* blinking, int* completedLinesAmount);
 void DrawStage(const Stage stage);
 void DrawTetromino(const Tetromino tetromino, const Stage stage);
 void Input(Tetromino* tetromino, const Stage stage);
-void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax, unsigned long long int* score, float* speed, Music* mainThem);
-void Draw(const Tetromino tetromino, const Stage stage, unsigned long long int score);
+void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, unsigned long long int* score, float* speed, Music* mainThem, bool* blinking, float* blinkingTimer, int* completedLinesAmount, float* blinkingTick);
+void Draw(const Tetromino tetromino, Stage* stage, unsigned long long int score, const bool blinking, const int completedLinesAmount, float* blinkingTick, const float speed);
 unsigned long long int CalculateScore(const int completedLinesAmount);
 int InitScore(void);
 void DrawScore(const unsigned long long int score);
 void InitAudio(Music* mainTheme);
 void Exit(Music* mainTheme);
+bool ManageBlinkingTimer(float* blinkingTimer, float* speed);
+void DrawBlinks(const int completedLinesAmount, Stage* stage, float* blinkingTick, const float speed);
+void Blink(int* box, float* blinkingTick, const float speed);
