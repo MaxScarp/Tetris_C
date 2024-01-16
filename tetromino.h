@@ -1,10 +1,13 @@
+// Size of the tetromino grid (4x4)
 #define TETROMINO_SIZE 4
 
+// Structure defining a Tetromino
 typedef struct TetrominoDefinition
 {
     int data[TETROMINO_SIZE * TETROMINO_SIZE];
 } TetrominoDefinition;
 
+// Enumeration defining types of Tetrominos
 typedef enum TetrominoType
 {
     Z_TETROMINO,
@@ -17,6 +20,7 @@ typedef enum TetrominoType
     LAST_TYPE,
 } TetrominoType;
 
+// Enumeration defining rotations of Tetrominos
 typedef enum TetrominoRotation
 {
     DEGREES_0,
@@ -26,6 +30,7 @@ typedef enum TetrominoRotation
     LAST_ROTATION,
 } TetrominoRotation;
 
+// Array of TetrominoDefinitions for each Tetromino type and rotation
 TetrominoDefinition tetrominoDefinition[LAST_TYPE][LAST_ROTATION] =
 {
     //Z_TETROMINO

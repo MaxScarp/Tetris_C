@@ -4,6 +4,7 @@
 #include "tetromino.h"
 #include "raylib.h"
 
+// Window and game settings
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 700
 #define STAGE_WIDTH 12
@@ -18,6 +19,7 @@
 #define TETROMINO_START_Y 0
 #define MAIN_THEME_PATH "mainTheme.wav"
 
+// Customized color enumeration
 typedef enum CustomizedColor
 {
     MY_CYAN,
@@ -31,6 +33,7 @@ typedef enum CustomizedColor
     LAST_COLOR,
 } CustomizedColor;
 
+// Array of predefined colors
 const Color colors[] =
 {
     {0, 255, 255, 255}, //Cyan
@@ -43,6 +46,7 @@ const Color colors[] =
     {127, 127, 127, 255}, //Grey
 };
 
+// Tetromino structure
 typedef struct Tetromino
 {
     int positionX;
@@ -53,6 +57,7 @@ typedef struct Tetromino
     TetrominoDefinition* data;
 } Tetromino;
 
+// Stage structure
 typedef struct Stage
 {
     int centerX;
@@ -61,6 +66,7 @@ typedef struct Stage
     Color color;
 } Stage;
 
+// Function prototypes
 void InitGame(Stage* stage, float* tetrominoMoveTimer, float* speed);
 void InitTetromino(Tetromino* tetromino);
 bool CheckCollision(const Tetromino* tetromino, const Stage stage);

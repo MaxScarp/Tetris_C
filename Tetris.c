@@ -2,8 +2,10 @@
 
 int main(int argc, char** argv, char** envs)
 {
+    // Constants for tetromino movement
     const float tetrominoMoveTimerMax = MOVE_TIMER_MAX;
 
+    // Game variables
     Stage stage;
     Tetromino tetromino;
 
@@ -14,25 +16,33 @@ int main(int argc, char** argv, char** envs)
 
     Music mainTheme;
 
+    // Initialize game components
     InitGame(&stage, &tetrominoMoveTimer, &speed);
     InitAudio(&mainTheme);
     InitTetromino(&tetromino);
 
+    // Main game loop
     while(!WindowShouldClose())
     {
+        // Process player input
         Input(&tetromino, stage);
+        // Update game state
         Update(&tetromino, &stage, &tetrominoMoveTimer, tetrominoMoveTimerMax, &score, &speed, &mainTheme);
+        // Render the game
         Draw(tetromino, stage, score);
     }
 
+    // Clean up resources
     Exit(&mainTheme);
 
     return 0;
 }
 
 #pragma region "FUNCTIONS"
+// Initialize the game components
 void InitGame(Stage* stage, float* tetrominoMoveTimer, float* speed)
 {
+    // Stage block layout
     const int blocks[] = 
     {
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -59,24 +69,29 @@ void InitGame(Stage* stage, float* tetrominoMoveTimer, float* speed)
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     };
 
+     // Initialize Raylib window and set target FPS
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
     SetTargetFPS(FPS);  
 
+    // Initialize random seed
     time_t unixTime;
     time(&unixTime);
     SetRandomSeed(unixTime);
 
+    // Set stage properties
     stage->centerX = (GetScreenWidth() - STAGE_WIDTH * TILE_SIZE) * 0.5f;
     stage->centerY = (GetScreenHeight() - STAGE_HEIGHT * TILE_SIZE) * 0.5f;
     memcpy(stage->blocks, blocks, sizeof(blocks));
     stage->color = colors[MY_GREY];
 
+    // Set initial tetromino movement variables
     *tetrominoMoveTimer = MOVE_TIMER_MAX;
     *speed = INIT_SPEED;
 
     return;
 }
 
+// Initialize a tetromino with random type, rotation, and color
 void InitTetromino(Tetromino* tetromino)
 {
     tetromino->positionX = TETROMINO_START_X;
@@ -89,6 +104,7 @@ void InitTetromino(Tetromino* tetromino)
     return;
 }
 
+// Check collision between a tetromino and the stage
 bool CheckCollision(const Tetromino* tetromino, const Stage stage)
 {
     for(int y = 0; y < TETROMINO_SIZE; y++)
@@ -112,12 +128,14 @@ bool CheckCollision(const Tetromino* tetromino, const Stage stage)
     return false;
 }
 
+// Copy the content of one tetromino to another
 void CopyTetromino(const Tetromino* source, Tetromino* destination)
 {
     memcpy(destination, source, sizeof(Tetromino));
     destination->data = source->data;
 }
 
+// Manage rotation of the tetromino
 void ManageRotation(Tetromino* tetromino, const Stage stage)
 {
     if(IsKeyPressed(KEY_SPACE))
@@ -137,6 +155,7 @@ void ManageRotation(Tetromino* tetromino, const Stage stage)
     return;
 }
 
+// Manage horizontal movement of the tetromino
 void ManageHorizontalMovement(Tetromino* tetromino, const Stage stage)
 {
     if(IsKeyPressed(KEY_RIGHT))
@@ -163,6 +182,7 @@ void ManageHorizontalMovement(Tetromino* tetromino, const Stage stage)
     return;
 }
 
+// Manage the movement timer and speed of the tetromino
 bool ManageTimer(float* moveTimer, const float moveTimerMax, float* speed)
 {
     *moveTimer -= GetFrameTime() * (*speed);
@@ -175,6 +195,7 @@ bool ManageTimer(float* moveTimer, const float moveTimerMax, float* speed)
     return false;
 }
 
+// Shift down lines in the stage after completing a line
 void ShiftLineDown(const int startLineY, Stage* stage)
 {
     for(int y = startLineY; y >= 0; y--)
@@ -203,6 +224,7 @@ void ShiftLineDown(const int startLineY, Stage* stage)
     return;
 }
 
+// Delete completed lines in the stage and calculate score
 int DeleteLines(Stage* stage)
 {
     int completedLinesAmount = 0;
@@ -236,6 +258,7 @@ int DeleteLines(Stage* stage)
     return completedLinesAmount;
 }
 
+// Move the tetromino down and handle collision with the stage
 void MoveTetrominoDown(Tetromino* tetromino, Stage* stage, unsigned long long int* score, float* speed)
 {
     tetromino->positionY += 1;
@@ -275,6 +298,7 @@ void MoveTetrominoDown(Tetromino* tetromino, Stage* stage, unsigned long long in
     return;
 }
 
+// Draw the stage with its blocks
 void DrawStage(const Stage stage)
 {
     for(int y = 0; y < STAGE_HEIGHT; y++)
@@ -295,6 +319,7 @@ void DrawStage(const Stage stage)
     return;
 }
 
+// Draw the current tetromino on the stage
 void DrawTetromino(const Tetromino tetromino, const Stage stage)
 {
     for(int y = 0; y < TETROMINO_SIZE; y++)
@@ -313,6 +338,7 @@ void DrawTetromino(const Tetromino tetromino, const Stage stage)
     return;
 }
 
+// Process player input for tetromino movement
 void Input(Tetromino* tetromino, const Stage stage)
 {
     ManageRotation(tetromino, stage);
@@ -321,6 +347,7 @@ void Input(Tetromino* tetromino, const Stage stage)
     return;
 }
 
+// Update the game state (e.g., tetromino movement, line completion)
 void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const float tetrominoMoveTimerMax, unsigned long long int* score, float* speed, Music* mainTheme)
 {
     UpdateMusicStream(*mainTheme);
@@ -332,6 +359,7 @@ void Update(Tetromino* tetromino, Stage* stage, float* tetrominoMoveTimer, const
     return;
 }
 
+// Draw the game components (stage, tetromino, score)
 void Draw(const Tetromino tetromino, const Stage stage, const unsigned long long int score)
 {
     BeginDrawing();
@@ -344,6 +372,7 @@ void Draw(const Tetromino tetromino, const Stage stage, const unsigned long long
     return;
 }
 
+// Calculate the score based on the number of completed lines
 unsigned long long int CalculateScore(const int completedLinesAmount)
 {
     unsigned long long int score = 0;
@@ -372,11 +401,13 @@ unsigned long long int CalculateScore(const int completedLinesAmount)
     return score;
 }
 
+// Initialize the score variable
 int InitScore(void)
 {
     return 0;
 }
 
+// Draw the current score on the screen
 void DrawScore(const unsigned long long int score)
 {
     DrawText(TextFormat("Score: %llu", score), 25, 25, 40, WHITE);
@@ -384,6 +415,7 @@ void DrawScore(const unsigned long long int score)
     return;
 }
 
+// Initialize audio resources
 void InitAudio(Music* mainTheme)
 {
     InitAudioDevice();
@@ -394,6 +426,7 @@ void InitAudio(Music* mainTheme)
     PlayMusicStream(*mainTheme);
 }
 
+// Clean up resources and close the game window
 void Exit(Music* mainTheme)
 {
     UnloadMusicStream(*mainTheme);
